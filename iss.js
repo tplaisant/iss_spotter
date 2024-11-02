@@ -26,7 +26,6 @@ const fetchCoordsByIP = function(ip, callback) {
       callback(error, null);
       return;
     } else if (response.body.success === false) {
-      console.log(response.body.success);
       callback(`${response.body.message} when fetching for IP ${response.body.ip}` , null);
       return;
     } else {
@@ -43,8 +42,8 @@ const fetchISSFlyOverTimes = function(coords, callback) {
     if (error !== null) {
       callback(error, null);
       return;
-    } else if (response.statusCode !== 200) {
-      callback(response.body);
+    } else if (response.statusCode !== 200) {      
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
       return;
     } else {
       callback(null, response.body.response);
