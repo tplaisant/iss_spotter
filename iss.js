@@ -1,5 +1,30 @@
 const needle = require('needle');
 
+const nextISSTimesForMyLocation = function(callback) {
+fetchMyIP((error, ip) => {
+  if (error) {
+    console.log("It didn't work!" , error);
+    return;
+  }
+
+  fetchCoordsByIP(ip, (error, data) => {
+    if (error) {
+      console.log("It didn't work! Error: Success status was false. Server message says:" ,error);
+      return;
+    }
+
+    fetchISSFlyOverTimes(data, (error, data) => {
+      if (error) {
+        console.log("It didn't work!" , error);
+        return;
+      }
+      callback(null, data);
+      return;
+    });
+  });
+});
+}
+
 const fetchMyIP = function(callback) {
   let url = `https://api.ipify.org?format=json`;
 
@@ -37,7 +62,8 @@ const fetchCoordsByIP = function(ip, callback) {
 
 const fetchISSFlyOverTimes = function(coords, callback) {
   let url = `https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
-  
+  let result = [];
+
   needle.get(`${url}`, (error, response) => {
     if (error !== null) {
       callback(error, null);
@@ -46,10 +72,14 @@ const fetchISSFlyOverTimes = function(coords, callback) {
       callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
       return;
     } else {
-      callback(null, response.body.response);
-      return;
+      for (let date of response.body.response) {
+        let passTime = new Date(date.risetime * 1000);
+        dateString = passTime.toGMTString();
+        result.push(`Next pass at ${dateString} for ${date.duration} seconds`);
+      }
+      callback(null, result);
     }
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+module.exports = { nextISSTimesForMyLocation };
