@@ -10,7 +10,7 @@ const fetchMyIP = function() {
 };
 
 const fetchCoordsByIP = function(ip) {
-  return needle('get', `http://ipwho.is/42`)//${ip}`)
+  return needle('get', `http://ipwho.is/${ip}`)
   .then((response) => {
     const body = response.body; //retrieve body from response
     const latitude = body.latitude; // retrieve latitude from body
@@ -35,4 +35,8 @@ const nextISSTimesForMyLocation = () => {
       return passTimes});
 }
 
-module.exports = { nextISSTimesForMyLocation };
+const printPassTimes = (passTimes) => {
+  console.log(passTimes);
+}
+
+module.exports = { nextISSTimesForMyLocation, printPassTimes };
