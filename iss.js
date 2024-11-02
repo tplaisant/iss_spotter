@@ -19,13 +19,14 @@ const fetchMyIP = function(callback) {
 };
 
 const fetchCoordsByIP = function(ip, callback) {
-  let url = "http://ipwho.is/";
+  let url = `http://ipwho.is/${ip}`;
 
   needle.get(`${url}`, (error, response) => {
     if (error !== null) {
       callback(error, null);
       return;
     } else if (response.body.success === false) {
+      console.log(response.body.success);
       callback(`${response.body.message} when fetching for IP ${response.body.ip}` , null);
       return;
     } else {
@@ -35,4 +36,21 @@ const fetchCoordsByIP = function(ip, callback) {
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = function(coords, callback) {
+  let url = `https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
+  
+  needle.get(`${url}`, (error, response) => {
+    if (error !== null) {
+      callback(error, null);
+      return;
+    } else if (response.statusCode !== 200) {
+      callback(response.body);
+      return;
+    } else {
+      callback(null, response.body.response);
+      return;
+    }
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
